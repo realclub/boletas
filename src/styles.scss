@@ -1,0 +1,154 @@
+@import "./tailwind.css";
+
+@layer base {
+  @font-face {
+    font-family: 'TT Firs Neue Regular';
+    src: url('/fonts/TT Firs Neue Trial Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: 'TT Firs Neue Medium';
+    src: url('/fonts/TT Firs Neue Trial Medium.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: 'TT Firs Neue Semibold';
+    src: url('/fonts/TT Firs Neue Trial DemiBold.ttf') format('truetype');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: 'TT Firs Neue Bold';
+    src: url('/fonts/TT Firs Neue Trial Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: 'TT Firs Neue Light';
+    src: url('/fonts/TT Firs Neue Trial Light.ttf') format('truetype');
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: 'TT Firs Neue';
+    src: url('/fonts/TT Firs Neue Trial Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: 'TT Firs Neue';
+    src: url('/fonts/TT Firs Neue Trial Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  :root {
+    --color-primary: #003399;
+    --color-primary-light: #1a4db3;
+    --color-primary-dark: #002277;
+
+    --color-secondary: #d1ab66;
+    --color-secondary-light: #f8d188;
+    --color-secondary-dark: #b8924f;
+
+    --color-success: #22c55d;
+    --color-error: #ef4444;
+    --color-warning: #f59e0b;
+    --color-info: #3b82f6;
+
+    --color-accent: #f8f9fa;
+    --color-text: #1a1a1a;
+
+    --surface-bg: #ffffff;
+    --surface-subtle: #f8fafc;
+    --surface-muted: #f1f5f9;
+    --surface-border: rgba(0, 0, 81, 0.08);
+    --surface-text: #1a1a1a;
+    --surface-text-muted: #64748b;
+    --surface-text-soft: #94a3b8;
+    --surface-popover: #ffffff;
+    --surface-sidebar: rgba(255, 255, 255, 0.95);
+    --surface-accent-text: #003399;
+    --surface-accent-soft: rgba(0, 51, 153, 0.07);
+    --surface-accent-border: rgba(0, 51, 153, 0.14);
+  }
+
+  .dark {
+    --color-text: #f1f5f9;
+    --surface-bg: #131416;
+    --surface-subtle: #161b27;
+    --surface-muted: #1e2535;
+    --surface-border: rgba(255, 255, 255, 0.08);
+    --surface-text: #f1f5f9;
+    --surface-text-muted: #94a3b8;
+    --surface-text-soft: #64748b;
+    --surface-popover: #1a2033;
+    --surface-sidebar: rgba(22, 27, 39, 0.95);
+    --surface-accent-text: #a9beff;
+    --surface-accent-soft: rgba(91, 125, 255, 0.14);
+    --surface-accent-border: rgba(169, 190, 255, 0.22);
+    color-scheme: dark;
+  }
+}
+
+body {
+  @apply bg-slate-50 dark:bg-[#131416] text-(--surface-text) font-sans antialiased;
+  min-height: 100vh;
+  margin: 0;
+  transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@layer components {
+  .rcl-input {
+    @apply w-full border border-gray-200 dark:border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-gray-800 dark:text-white/90 outline-none focus:border-(--color-primary) dark:focus:border-(--color-secondary) focus:ring-2 focus:ring-(--color-primary)/20 dark:focus:ring-(--color-secondary)/20 bg-white dark:bg-white/5 transition disabled:bg-gray-50 dark:disabled:bg-white/5 disabled:text-gray-400 dark:disabled:text-white/30;
+  }
+
+  .rcl-select {
+    @apply w-full border border-gray-200 dark:border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-gray-800 dark:text-white/90 outline-none focus:border-(--color-primary) dark:focus:border-(--color-secondary) focus:ring-2 focus:ring-(--color-primary)/20 dark:focus:ring-(--color-secondary)/20 bg-white dark:bg-slate-800 transition disabled:bg-gray-50 dark:disabled:bg-white/5;
+  }
+
+  @media (max-width: 640px) {
+    .rcl-input, .rcl-select {
+      font-size: 16px;
+    }
+  }
+
+  .rcl-btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-semibold rounded-xl bg-(--color-primary) text-white shadow-sm hover:bg-(--color-primary-light) active:bg-(--color-primary-dark) transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-(--color-primary) disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer;
+  }
+
+  .rcl-btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium rounded-xl border border-gray-200 dark:border-white/10 text-gray-700 dark:text-white/80 bg-white dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-gray-400 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer;
+  }
+
+  .rcl-btn-gold {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-semibold rounded-xl bg-(--color-secondary) text-white shadow-sm hover:bg-(--color-secondary-light) active:bg-(--color-secondary-dark) transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-(--color-secondary) disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer;
+  }
+
+  .rcl-card {
+    @apply bg-white dark:bg-[#1a2033] rounded-2xl border border-gray-100 dark:border-white/10 shadow-sm dark:shadow-black/20;
+  }
+
+  .rcl-panel {
+    @apply rounded-2xl border border-gray-100 bg-white shadow-sm dark:border-white/10 dark:bg-[#1a2033];
+  }
+
+  .rcl-label {
+    @apply block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5;
+  }
+}
