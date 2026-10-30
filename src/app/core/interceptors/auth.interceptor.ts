@@ -11,7 +11,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   let modifiedReq = req;
 
   // Si tenemos token y la petición va dirigida al API sin cabecera Authorization previa
-  if (token && req.url.startsWith(environment.apiBaseUrl) && !req.headers.has('Authorization')) {
+  const isApiTarget = req.url.includes('/api/') || (!!environment.apiBaseUrl && req.url.startsWith(environment.apiBaseUrl));
+  if (token && isApiTarget && !req.headers.has('Authorization')) {
     modifiedReq = req.clone({
       setHeaders: {
         Authorization: `Bearer ${token}`

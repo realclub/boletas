@@ -168,7 +168,11 @@ export class LoginComponent {
       error: (err) => {
         console.error('[LoginComponent] Error recibido:', err);
         this.loading.set(false);
-        this.errorMessage.set(err?.message || 'Error al iniciar sesión. Verifique su usuario y contraseña.');
+        if (err?.status === 0) {
+          this.errorMessage.set('No se pudo establecer conexión con el servidor (bloqueo de seguridad CORS / HTTPS o servidor inaccesible).');
+        } else {
+          this.errorMessage.set(err?.error?.message || err?.message || 'Error al iniciar sesión. Verifique su usuario y contraseña.');
+        }
       }
     });
   }
