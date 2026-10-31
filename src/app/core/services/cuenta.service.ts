@@ -11,10 +11,11 @@ export class CuentaService {
   private readonly http = inject(HttpClient);
 
   /**
-   * Actualiza la contraseña del usuario en el Web API NavaSoft
+   * Cambiar contraseña: PUT /clave
+   * { "claveActual": "...", "claveNueva": "..." }
    */
   cambiarClave(request: CambiarClaveRequest): Observable<CambiarClaveResponse> {
-    const url = `${environment.apiBaseUrl}${environment.endpoints.cambiarClave}`;
-    return this.http.post<CambiarClaveResponse>(url, request);
+    const url = `${environment.apiBaseUrl}${environment.endpoints.clave}`;
+    return this.http.put<CambiarClaveResponse>(url, request);
   }
 }

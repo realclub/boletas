@@ -1,28 +1,26 @@
 import { ApiResponse } from './api-response.model';
 
 export interface LoginRequest {
-  nomUsuario: string;
-  pwdUsuario: string;
+  documento: string;
+  clave: string;
 }
 
-export interface LoginData {
+export interface Trabajador {
+  documento: string;
+  nombre: string;
+  nombreCompleto: string;
+}
+
+export interface SesionData {
   token: string;
+  expiraEnSegundos?: number;
+  trabajador: Trabajador;
 }
 
-export type LoginResponse = ApiResponse<LoginData>;
-
-export interface UsuarioData {
-  codTra: string;
-  nomTra: string;
-  nroDni: string;
-  email?: string;
-  codCia?: string;
-  nomCia?: string;
-}
-
-export type UsuarioResponse = ApiResponse<UsuarioData>;
+export type LoginResponse = ApiResponse<SesionData>;
+export type SesionResponse = ApiResponse<Trabajador>;
 
 export interface UserSession {
   token: string;
-  usuario: UsuarioData;
+  trabajador: Trabajador;
 }

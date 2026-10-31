@@ -1,30 +1,24 @@
 import { ApiResponse } from './api-response.model';
 
-export type TipoPlanilla = 'N' | 'V' | 'G';
+export type TipoBoleta = 'N' | 'G' | 'V';
 
-export interface TipoPlanillaOption {
-  value: TipoPlanilla;
-  label: string;
-  description: string;
+export interface BoletaItem {
+  anio: number;
+  mes: number;
+  tipo: TipoBoleta;
+  tipoNombre: string;
+  recibida: boolean;
+  fechaRecepcion: string | null;
+  disponible: boolean;
+  pdf: string; // ruta relativa ej: "boletas/2026/4/N/pdf"
 }
+
+export type BoletasResponse = ApiResponse<BoletaItem[]>;
 
 export interface MesOption {
   value: number;
   label: string;
 }
-
-export interface BoletaRequest {
-  CodCia?: string;
-  NroDni: string;
-  CodTra: string;
-  NomTra: string;
-  Anno: number;
-  Mes: number;
-  TipPla: TipoPlanilla;
-  NameHost?: string;
-}
-
-export type BoletaResponse = ApiResponse<string>;
 
 export const MESES: MesOption[] = [
   { value: 1, label: 'Enero' },
@@ -41,8 +35,8 @@ export const MESES: MesOption[] = [
   { value: 12, label: 'Diciembre' }
 ];
 
-export const TIPOS_PLANILLA: TipoPlanillaOption[] = [
-  { value: 'N', label: 'Mensual', description: 'Boleta de pago mensual regular' },
-  { value: 'V', label: 'Vacaciones', description: 'Boleta correspondiente al periodo vacacional' },
-  { value: 'G', label: 'Gratificaciones', description: 'Boleta por gratificación legal (Julio / Diciembre)' }
-];
+export const TIPOS_BOLETA_INFO: Record<TipoBoleta, { label: string; color: string }> = {
+  N: { label: 'Normal / Mensual', color: 'blue' },
+  G: { label: 'Gratificación', color: 'amber' },
+  V: { label: 'Vacaciones', color: 'emerald' }
+};

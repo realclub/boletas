@@ -10,20 +10,21 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   let modifiedReq = req;
 
-  // Si tenemos token y la petición va dirigida al API sin cabecera Authorization previa
-  const isApiTarget = req.url.includes('/api/') || (!!environment.apiBaseUrl && req.url.startsWith(environment.apiBaseUrl));
-  if (token && isApiTarget && !req.headers.has('Authorization')) {
+  // Si tenemos token y la llamada va dirigida al API de RRHH
+  if (token && req.url.startsWith(environment.apiBaseUrl)) {
     modifiedReq = req.clone({
       setHeaders: {
-        Authorization: `Bearer ${token}`
+        'X-Rrhh-Sesion': token
       }
     });
   }
 
   return next(modifiedReq).pipe(
     catchError((error: HttpErrorResponse) => {
-      // 401 Unauthorized: token expirado o inválido
-      if (error.status === 401 && !req.url.includes(environment.endpoints.login)) {
+      // 401 Unauthorized: sesión vencida o no autorizada
+      // Si falla cualquier endpoint con 401 que no sea el login inicial
+      const isLoginRequest = req.url.endsWith(environment.endpoints.sesion) && req.method === 'POST';
+      if (error.status === 401 && !isLoginRequest) {
         authService.logout();
       }
       return throwError(() => error);

@@ -63,8 +63,8 @@ import { AuthService } from '../../core/services';
           <div class="flex items-center gap-3">
             @if (user(); as u) {
               <div class="hidden md:flex flex-col text-right">
-                <span class="text-xs font-bold text-slate-800 dark:text-white truncate max-w-[180px]">{{ u.nomTra }}</span>
-                <span class="text-[11px] text-slate-400 font-medium tracking-wide">DNI: {{ u.nroDni }}</span>
+                <span class="text-xs font-bold text-slate-800 dark:text-white truncate max-w-[200px]">{{ u.nombreCompleto || u.nombre }}</span>
+                <span class="text-[11px] text-slate-400 font-medium tracking-wide">Doc: {{ u.documento }}</span>
               </div>
             }
 
@@ -107,7 +107,8 @@ export class LayoutComponent {
   readonly currentYear = new Date().getFullYear();
 
   initials(): string {
-    const name = this.user()?.nomTra || '';
+    const user = this.user();
+    const name = user?.nombreCompleto || user?.nombre || '';
     if (!name) return 'RC';
     const parts = name.trim().split(/\s+/);
     if (parts.length >= 2) {

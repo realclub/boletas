@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services';
@@ -13,7 +13,6 @@ import { MESES } from '../../core/models';
       
       <!-- Welcome Hero Banner -->
       <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-(--color-primary) via-[#002277] to-(--color-primary-light) text-white p-7 sm:p-9 shadow-lg">
-        <!-- Background subtle glow/rings -->
         <div class="absolute -right-10 -bottom-10 w-64 h-64 rounded-full bg-white/5 pointer-events-none blur-2xl"></div>
         <div class="absolute right-20 top-0 w-32 h-32 rounded-full bg-(--color-secondary)/20 pointer-events-none blur-xl"></div>
         
@@ -67,7 +66,7 @@ import { MESES } from '../../core/models';
             </div>
             <h3 class="text-base font-bold text-slate-800 dark:text-white">Mis Boletas de Pago</h3>
             <p class="mt-1 text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-              Consulta tus boletas mensuales, vacaciones y gratificaciones con visor digital y descarga PDF oficial.
+              Consulta tus boletas mensuales, vacaciones y gratificaciones con registro de recepción y descarga PDF oficial.
             </p>
           </div>
           <div class="mt-5 pt-4 border-t border-gray-100 dark:border-white/5">
@@ -101,7 +100,7 @@ import { MESES } from '../../core/models';
           </div>
         </div>
 
-        <!-- Card 3: Seguridad y Credenciales -->
+        <!-- Card 3: Seguridad -->
         <div class="rcl-card p-6 flex flex-col justify-between hover:border-(--color-primary)/30 dark:hover:border-white/20 transition group">
           <div>
             <div class="w-11 h-11 rounded-2xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 flex items-center justify-center mb-4 group-hover:scale-105 transition">
@@ -109,14 +108,14 @@ import { MESES } from '../../core/models';
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
               </svg>
             </div>
-            <h3 class="text-base font-bold text-slate-800 dark:text-white">Seguridad de la Cuenta</h3>
+            <h3 class="text-base font-bold text-slate-800 dark:text-white">Seguridad de Acceso</h3>
             <p class="mt-1 text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-              Mantén tu contraseña actualizada periódicamente para proteger tu información laboral y salarial.
+              Mantén tu contraseña institucional actualizada para proteger tu información laboral privada.
             </p>
           </div>
           <div class="mt-5 pt-4 border-t border-gray-100 dark:border-white/5">
-            <a routerLink="/cambiar-clave" class="inline-flex items-center gap-1.5 text-xs font-bold text-amber-600 dark:text-amber-400 hover:underline">
-              <span>Cambiar clave</span>
+            <a routerLink="/cambiar-clave" class="inline-flex items-center gap-1.5 text-xs font-bold text-(--color-primary) dark:text-(--color-secondary) hover:underline">
+              <span>Cambiar mi contraseña</span>
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
               </svg>
@@ -155,7 +154,9 @@ export class DashboardComponent {
   readonly mesActual = new Date().getMonth() + 1;
 
   primerNombre(): string {
-    const full = this.user()?.nomTra || '';
+    const user = this.user();
+    if (user?.nombre) return user.nombre;
+    const full = user?.nombreCompleto || '';
     if (!full) return 'Colaborador';
     return full.split(' ')[0];
   }

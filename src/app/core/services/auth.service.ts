@@ -1,17 +1,17 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, switchMap, tap, map, catchError, of, throwError } from 'rxjs';
+import { Observable, tap, map, catchError, of, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
   LoginRequest,
   LoginResponse,
-  UsuarioResponse,
-  UsuarioData,
+  Trabajador,
   UserSession
 } from '../models';
 
-const SESSION_KEY = 'rcl_boleta_session';
+const SESSION_TOKEN_KEY = 'rrhh-token';
+const SESSION_DATA_KEY = 'rrhh-trabajador';
 
 @Injectable({
   providedIn: 'root'
@@ -22,102 +22,97 @@ export class AuthService {
 
   // Signals para estado reactivo
   readonly userSession = signal<UserSession | null>(this.recuperarSesionStorage());
-  readonly currentUser = computed(() => this.userSession()?.usuario ?? null);
+  readonly currentUser = computed(() => this.userSession()?.trabajador ?? null);
   readonly token = computed(() => this.userSession()?.token ?? null);
   readonly isAuthenticated = computed(() => !!this.userSession()?.token);
 
   /**
-   * Autenticación con el Web API NavaSoft:
-   * 1. GetLogin -> Obtiene token Bearer
-   * 2. GetUsuario -> Obtiene perfil del colaborador
+   * Ingreso al portal: POST /sesion
+   * { "documento": "12345678", "clave": "MiClave1" }
    */
   login(credentials: LoginRequest): Observable<UserSession> {
-    const loginUrl = `${environment.apiBaseUrl}${environment.endpoints.login}`;
-    const usuarioUrl = `${environment.apiBaseUrl}${environment.endpoints.usuario}`;
+    const url = `${environment.apiBaseUrl}${environment.endpoints.sesion}`;
 
-    // Payload idéntico a LoginClass de PHP
     const payload = {
-      codUsuario: credentials.nomUsuario,
-      nomUsuario: credentials.nomUsuario,
-      pwdUsuario: credentials.pwdUsuario,
-      IPEquipo: typeof window !== 'undefined' ? window.location.hostname : '127.0.0.1',
-      Email: ''
+      documento: credentials.documento.trim(),
+      clave: credentials.clave
     };
 
-    console.log('[AuthService] Enviando GetLogin:', loginUrl, payload.nomUsuario);
-
-    return this.http.post<any>(loginUrl, payload).pipe(
-      switchMap((loginRes: any) => {
-        console.log('[AuthService] Respuesta GetLogin:', loginRes);
-
-        // Validar éxito de login
-        const isSuccess = loginRes?.success === true || String(loginRes?.success).toLowerCase() === 'true';
-        const token = loginRes?.data?.token || loginRes?.data?.Token || loginRes?.token;
-
-        if (!isSuccess || !token) {
-          const errorMsg = loginRes?.message || 'Usuario o contraseña incorrectos';
-          return throwError(() => new Error(errorMsg));
+    return this.http.post<LoginResponse>(url, payload).pipe(
+      map((res) => {
+        if (!res.success || !res.data?.token) {
+          throw new Error(res.message || 'Documento o contraseña incorrectos.');
         }
 
-        const headers = new HttpHeaders({
-          Authorization: `Bearer ${token}`
-        });
+        const session: UserSession = {
+          token: res.data.token,
+          trabajador: res.data.trabajador
+        };
 
-        console.log('[AuthService] Token obtenido. Solicitando GetUsuario...');
-
-        return this.http.post<any>(usuarioUrl, payload, { headers }).pipe(
-          map((userRes: any) => {
-            console.log('[AuthService] Respuesta GetUsuario:', userRes);
-            const uData = userRes?.data || userRes || {};
-
-            const usuario: UsuarioData = {
-              codTra: uData.codTra || uData.CodTra || credentials.nomUsuario,
-              nomTra: uData.nomTra || uData.NomTra || credentials.nomUsuario,
-              nroDni: uData.nroDni || uData.NroDni || credentials.nomUsuario,
-              email: uData.email || uData.Email || '',
-              codCia: uData.codCia || uData.CodCia || '',
-              nomCia: uData.nomCia || uData.NomCia || 'Real Club de Lima'
-            };
-
-            const session: UserSession = { token, usuario };
-            this.guardarSesion(session);
-            return session;
-          }),
-          catchError((userErr) => {
-            console.warn('[AuthService] No se pudo obtener GetUsuario, usando perfil por defecto:', userErr);
-            // Si GetLogin fue exitoso, no bloqueamos al usuario si GetUsuario falla
-            const fallbackUser: UsuarioData = {
-              codTra: credentials.nomUsuario,
-              nomTra: credentials.nomUsuario,
-              nroDni: credentials.nomUsuario,
-              nomCia: 'Real Club de Lima'
-            };
-            const session: UserSession = { token, usuario: fallbackUser };
-            this.guardarSesion(session);
-            return of(session);
-          })
-        );
+        this.guardarSesion(session);
+        return session;
       }),
       catchError((err) => {
-        console.error('[AuthService] Error en login:', err);
-        return throwError(() => err);
+        const errorMsg = err?.error?.message || err?.message || 'Error al iniciar sesión.';
+        return throwError(() => new Error(errorMsg));
       })
     );
   }
 
+  /**
+   * Verificar validez de la sesión: GET /sesion
+   * Sirve para confirmar si el token sigue vigente al recargar la página
+   */
+  verificarSesion(): Observable<Trabajador | null> {
+    const currentToken = this.token();
+    if (!currentToken) return of(null);
+
+    const url = `${environment.apiBaseUrl}${environment.endpoints.sesion}`;
+    return this.http.get<any>(url).pipe(
+      map((res) => {
+        if (res.success && res.data) {
+          const trabajador: Trabajador = res.data;
+          const session: UserSession = { token: currentToken, trabajador };
+          this.guardarSesion(session);
+          return trabajador;
+        }
+        this.logout();
+        return null;
+      }),
+      catchError(() => {
+        this.logout();
+        return of(null);
+      })
+    );
+  }
+
+  /**
+   * Cerrar sesión: DELETE /sesion
+   */
   logout(): void {
-    if (typeof window !== 'undefined') {
-      sessionStorage.removeItem(SESSION_KEY);
-      localStorage.removeItem(SESSION_KEY);
+    const currentToken = this.token();
+    if (currentToken) {
+      const url = `${environment.apiBaseUrl}${environment.endpoints.sesion}`;
+      // Intentar avisar al backend de la salida
+      this.http.delete(url).pipe(catchError(() => of(null))).subscribe();
     }
+
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem(SESSION_TOKEN_KEY);
+      sessionStorage.removeItem(SESSION_DATA_KEY);
+      localStorage.removeItem(SESSION_TOKEN_KEY);
+      localStorage.removeItem(SESSION_DATA_KEY);
+    }
+
     this.userSession.set(null);
     this.router.navigate(['/login']);
   }
 
   private guardarSesion(session: UserSession): void {
     if (typeof window !== 'undefined') {
-      sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
-      localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+      // Regla de API: guardar token en memoria o sessionStorage, NUNCA en localStorage
+      sessionStorage.setItem(SESSION_TOKEN_KEY, session.token);
+      sessionStorage.setItem(SESSION_DATA_KEY, JSON.stringify(session.trabajador));
     }
     this.userSession.set(session);
   }
@@ -125,8 +120,15 @@ export class AuthService {
   private recuperarSesionStorage(): UserSession | null {
     if (typeof window === 'undefined') return null;
     try {
-      const saved = sessionStorage.getItem(SESSION_KEY) || localStorage.getItem(SESSION_KEY);
-      return saved ? JSON.parse(saved) : null;
+      const token = sessionStorage.getItem(SESSION_TOKEN_KEY);
+      const dataStr = sessionStorage.getItem(SESSION_DATA_KEY);
+      if (token && dataStr) {
+        return {
+          token,
+          trabajador: JSON.parse(dataStr)
+        };
+      }
+      return null;
     } catch {
       return null;
     }

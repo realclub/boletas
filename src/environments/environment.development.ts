@@ -1,11 +1,10 @@
 export const environment = {
   production: false,
-  // En desarrollo, Angular CLI dev-server usa proxy.conf.json para redirigir /api a http://143.0.250.120:86/WA_RRHHBolPago
-  apiBaseUrl: '',
+  apiBaseUrl: 'https://api.realclubdelima.org.pe/api_test_rcl/api/rrhh/portal',
   endpoints: {
-    login: '/api/login/GetLogin',
-    usuario: '/api/Cuenta/GetUsuario',
-    cambiarClave: '/api/Cuenta/UpdatePwdUsuario',
-    boleta: '/api/BoletaPago/UpdateBoletaPago'
+    sesion: '/sesion',
+    clave: '/clave',
+    boletas: '/boletas',
+    boletasHistorico: '/boletas/historico'
   }
 };

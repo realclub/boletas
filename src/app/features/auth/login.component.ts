@@ -34,17 +34,17 @@ import { AuthService } from '../../core/services';
           }
 
           <form (ngSubmit)="onSubmit()" class="space-y-4">
-            <!-- Usuario -->
+            <!-- Documento -->
             <div>
-              <label for="username" class="rcl-label">Usuario / DNI</label>
+              <label for="documento" class="rcl-label">Nro. de Documento</label>
               <div class="relative">
                 <input
-                  id="username"
-                  name="username"
+                  id="documento"
+                  name="documento"
                   type="text"
-                  [(ngModel)]="username"
+                  [(ngModel)]="documento"
                   required
-                  placeholder="Tu número de documento o código"
+                  placeholder="DNI, carné de extranjería o pasaporte"
                   class="rcl-input pl-10"
                   [disabled]="loading()"
                 />
@@ -98,7 +98,7 @@ import { AuthService } from '../../core/services';
             <div class="pt-2">
               <button
                 type="submit"
-                [disabled]="loading() || !username.trim() || !password.trim()"
+                [disabled]="loading() || !documento.trim() || !password.trim()"
                 class="rcl-btn-primary w-full py-3 text-sm font-semibold tracking-wide shadow-md"
               >
                 @if (loading()) {
@@ -132,47 +132,35 @@ export class LoginComponent {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
 
-  username = '';
+  documento = '';
   password = '';
   readonly loading = signal(false);
   readonly errorMessage = signal<string | null>(null);
   readonly showPassword = signal(false);
 
   onSubmit(): void {
-    if (!this.username.trim() || !this.password.trim()) return;
+    if (!this.documento.trim() || !this.password.trim()) return;
 
     this.loading.set(true);
     this.errorMessage.set(null);
-    console.log('[LoginComponent] Iniciando sesión para:', this.username.trim());
 
     this.authService.login({
-      nomUsuario: this.username.trim(),
-      pwdUsuario: this.password.trim()
+      documento: this.documento.trim(),
+      clave: this.password.trim()
     }).subscribe({
       next: (session) => {
-        console.log('[LoginComponent] Sesión iniciada con éxito:', session);
         this.loading.set(false);
-
-        // Navegar a /inicio con fallback automático
         this.router.navigate(['/inicio']).then(navigated => {
-          console.log('[LoginComponent] Resultado de navegación Angular a /inicio:', navigated);
           if (!navigated) {
-            console.warn('[LoginComponent] La navegación Angular retornó false, redirigiendo con window.location...');
             window.location.href = '/inicio';
           }
-        }).catch(err => {
-          console.error('[LoginComponent] Error en navegación Angular:', err);
+        }).catch(() => {
           window.location.href = '/inicio';
         });
       },
       error: (err) => {
-        console.error('[LoginComponent] Error recibido:', err);
         this.loading.set(false);
-        if (err?.status === 0) {
-          this.errorMessage.set('No se pudo establecer conexión con el servidor (bloqueo de seguridad CORS / HTTPS o servidor inaccesible).');
-        } else {
-          this.errorMessage.set(err?.error?.message || err?.message || 'Error al iniciar sesión. Verifique su usuario y contraseña.');
-        }
+        this.errorMessage.set(err?.message || 'Error al iniciar sesión. Verifique su documento y contraseña.');
       }
     });
   }

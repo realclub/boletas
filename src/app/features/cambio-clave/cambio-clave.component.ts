@@ -22,7 +22,14 @@ import { AuthService, CuentaService } from '../../core/services';
         <svg class="w-5 h-5 shrink-0 text-(--color-primary) dark:text-(--color-secondary) mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
         </svg>
-        <p>Por seguridad institucional, la contraseña debe tener entre <strong>5 y 10 caracteres</strong>.</p>
+        <div class="space-y-1">
+          <p class="font-bold">Reglas de la contraseña nueva:</p>
+          <ul class="list-disc list-inside text-xs space-y-0.5 text-slate-600 dark:text-slate-300">
+            <li>Entre <strong>6 y 10 caracteres</strong>.</li>
+            <li>Solo letras sin tilde, números y signos (sin espacios, sin ñ ni tildes).</li>
+            <li>Distinta de la actual y distinta del número de documento.</li>
+          </ul>
+        </div>
       </div>
 
       <!-- Card Form -->
@@ -50,6 +57,39 @@ import { AuthService, CuentaService } from '../../core/services';
 
         <form (ngSubmit)="onSubmit()" class="space-y-4">
           
+          <!-- Contraseña Actual -->
+          <div>
+            <label for="currentPass" class="rcl-label">Contraseña actual</label>
+            <div class="relative">
+              <input
+                id="currentPass"
+                name="currentPass"
+                [type]="showPass() ? 'text' : 'password'"
+                [(ngModel)]="currentPassword"
+                required
+                placeholder="Ingresa tu contraseña actual"
+                class="rcl-input pr-10"
+                [disabled]="loading()"
+              />
+              <button
+                type="button"
+                (click)="showPass.set(!showPass())"
+                class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+              >
+                @if (showPass()) {
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18"/>
+                  </svg>
+                } @else {
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                  </svg>
+                }
+              </button>
+            </div>
+          </div>
+
           <!-- Nueva Contraseña -->
           <div>
             <label for="newPass" class="rcl-label">Nueva contraseña</label>
@@ -60,28 +100,18 @@ import { AuthService, CuentaService } from '../../core/services';
                 [type]="showPass() ? 'text' : 'password'"
                 [(ngModel)]="newPassword"
                 required
-                minlength="5"
+                minlength="6"
                 maxlength="10"
-                placeholder="Mínimo 5 y máximo 10 caracteres"
+                placeholder="Entre 6 y 10 caracteres"
                 class="rcl-input pr-10"
                 [disabled]="loading()"
               />
-              <button
-                type="button"
-                (click)="showPass.set(!showPass())"
-                class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
-              >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                </svg>
-              </button>
             </div>
           </div>
 
           <!-- Confirmar Contraseña -->
           <div>
-            <label for="confirmPass" class="rcl-label">Confirmar contraseña</label>
+            <label for="confirmPass" class="rcl-label">Confirmar nueva contraseña</label>
             <div class="relative">
               <input
                 id="confirmPass"
@@ -89,7 +119,7 @@ import { AuthService, CuentaService } from '../../core/services';
                 [type]="showPass() ? 'text' : 'password'"
                 [(ngModel)]="confirmPassword"
                 required
-                minlength="5"
+                minlength="6"
                 maxlength="10"
                 placeholder="Repite la nueva contraseña"
                 class="rcl-input pr-10"
@@ -134,6 +164,7 @@ export class CambioClaveComponent {
   private readonly authService = inject(AuthService);
   private readonly cuentaService = inject(CuentaService);
 
+  currentPassword = '';
   newPassword = '';
   confirmPassword = '';
   readonly loading = signal(false);
@@ -142,35 +173,35 @@ export class CambioClaveComponent {
   readonly showPass = signal(false);
 
   esValido(): boolean {
+    const user = this.authService.currentUser();
+    const doc = user?.documento || '';
+
     return (
-      this.newPassword.length >= 5 &&
+      this.currentPassword.length > 0 &&
+      this.newPassword.length >= 6 &&
       this.newPassword.length <= 10 &&
-      this.newPassword === this.confirmPassword
+      this.newPassword === this.confirmPassword &&
+      this.newPassword !== this.currentPassword &&
+      this.newPassword !== doc
     );
   }
 
   onSubmit(): void {
     if (!this.esValido()) return;
 
-    const user = this.authService.currentUser();
-    if (!user) {
-      this.errorMessage.set('Sesión no válida.');
-      return;
-    }
-
     this.loading.set(true);
     this.errorMessage.set(null);
     this.successMessage.set(null);
 
     this.cuentaService.cambiarClave({
-      CodUsuario: user.codTra,
-      CodTra: user.codTra,
-      PwdUsuario: this.newPassword
+      claveActual: this.currentPassword,
+      claveNueva: this.newPassword
     }).subscribe({
       next: (res) => {
         this.loading.set(false);
         if (res.success) {
-          this.successMessage.set('Contraseña actualizada correctamente.');
+          this.successMessage.set(res.message || 'Contraseña actualizada correctamente.');
+          this.currentPassword = '';
           this.newPassword = '';
           this.confirmPassword = '';
         } else {
@@ -179,7 +210,7 @@ export class CambioClaveComponent {
       },
       error: (err) => {
         this.loading.set(false);
-        this.errorMessage.set(err?.message || 'Error de conexión al actualizar la contraseña.');
+        this.errorMessage.set(err?.error?.message || err?.message || 'Error al actualizar la contraseña.');
       }
     });
   }
