@@ -1,0 +1,13 @@
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # 1. Peticiones hacia la API redirigidas a proxy.php
+  RewriteRule ^api/(.*)$ proxy.php?endpoint=/api/$1 [QSA,L]
+
+  # 2. Rutas del frontend Angular SPA
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . /index.html [L]
+</IfModule>
+
