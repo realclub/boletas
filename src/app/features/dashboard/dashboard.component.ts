@@ -126,20 +126,15 @@ import { MESES } from '../../core/models';
       </div>
 
       <!-- Info Banner / Support -->
-      <div class="rcl-card p-5 sm:p-6 bg-slate-50/50 dark:bg-white/3 border border-gray-100 dark:border-white/5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div class="flex items-center gap-4">
-          <div class="w-10 h-10 rounded-xl bg-white dark:bg-white/5 border border-gray-200/80 dark:border-white/10 flex items-center justify-center text-slate-600 dark:text-slate-300 shrink-0">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/>
-            </svg>
-          </div>
-          <div>
-            <h4 class="text-sm font-bold text-slate-800 dark:text-white">¿Tienes consultas sobre tu boleta de pago?</h4>
-            <p class="text-xs text-slate-500 dark:text-slate-400">Comunícate con la Gerencia de Gestión Humana y Recursos Humanos del Real Club de Lima.</p>
-          </div>
+      <div class="rcl-card p-5 sm:p-6 bg-slate-50/50 dark:bg-white/3 border border-gray-100 dark:border-white/5 flex items-center gap-4">
+        <div class="w-10 h-10 rounded-xl bg-white dark:bg-white/5 border border-gray-200/80 dark:border-white/10 flex items-center justify-center text-slate-600 dark:text-slate-300 shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/>
+          </svg>
         </div>
-        <div class="text-xs font-semibold text-slate-600 dark:text-slate-300 bg-white dark:bg-white/5 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-white/10 w-fit shrink-0">
-          Oficina de RRHH &bull; Anexo 120 / 125
+        <div>
+          <h4 class="text-sm font-bold text-slate-800 dark:text-white">¿Tienes consultas sobre tu boleta de pago?</h4>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Comunícate con Recursos Humanos.</p>
         </div>
       </div>
 
